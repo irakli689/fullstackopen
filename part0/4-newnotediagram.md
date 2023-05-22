@@ -7,7 +7,7 @@ sequenceDiagram
 
     Note right of user: The user writes something in the text field and clicks submit button
     
-    browser->>server: POST user input to the https://studies.cs.helsinki.fi/exampleapp/new_note
+    browser->>server: POST request to the https://studies.cs.helsinki.fi/exampleapp/new_note
     activate server
     server->>browser: HTTP status code 302 (URL redirect)
     deactivate server
