@@ -7,26 +7,29 @@ const App = () => {
   const part3 = 'State of a component'
   const exercises3 = 14
   
-  function Header () {
+  function Header ({course}) {
     return(
       <>
         <h1>{course}</h1>
       </>
     )
   }
-
-  function Content () {
-    return(
+  const Part = ({part, exercises}) => {
+    return (
       <>
         <p>
-          {part1} {exercises1}
+          {part} {exercises}
         </p>
-        <p>
-          {part2} {exercises2}
-        </p>
-        <p>
-          {part3} {exercises3}
-        </p>
+      </>
+    )
+  }
+  const Content = () => {
+
+    return(
+      <>
+        <Part part={part1} exercises={exercises1} />
+        <Part part={part2} exercises={exercises2} />
+        <Part part={part3} exercises={exercises3} />
       </>
     )
   }
@@ -41,7 +44,7 @@ const App = () => {
 
   return (
     <div>
-      <Header />
+      <Header course={course}/>
       <Content />
       <Total />
     </div>
