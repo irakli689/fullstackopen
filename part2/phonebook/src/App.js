@@ -1,20 +1,35 @@
 import { useState } from 'react'
-import List from './list'
+import List from './components/list'
+import Filter from './components/filter'
+import Personform from './components/personform'
 const App = () => {
   const [persons, setPersons] = useState([
-    {name: 'Arto Hellas', number: '040-1234567'}
-  ]) 
-  const [newName, setNewName] = useState('')
-  const [namesArr, setNamesArr] = useState([])
-  const [newNumber, setNewNumber] = useState ('')
+    { name: 'Arto Hellas', number: '040-123456', id: 1 },
+    { name: 'Ada Lovelace', number: '39-44-5323523', id: 2 },
+    { name: 'Dan Abramov', number: '12-43-234345', id: 3 },
+    { name: 'Mary Poppendieck', number: '39-23-6423122', id: 4 }
+  ])
   
-  const handleNotChange = (event) => {
+  const [newName, setNewName] = useState('')
+  const [namesArr, setNamesArr] = useState([...persons.map(person=>person.name)])
+  const [newNumber, setNewNumber] = useState ('')
+  const [filter, setFilter] = useState ('')
+
+  
+  const handleFilter = (event) => {
+    const filt=event.target.value
+    setFilter(event.target.value)
+    console.log("filt", filter)
+    setPersons(persons.filter(person=>person.name.includes(filt)))
+  }
+  const handleName = (event) => {
       console.log(event.target.value)
       setNewName(event.target.value)
   }
   const handleNumber = (event) => {
     setNewNumber(event.target.value)
   }
+
   const addContact = (event) => {
     event.preventDefault()
     const newObject = {
@@ -35,21 +50,19 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
-      <form onSubmit={addContact}>
-        <div>name: <input value={newName} onChange={handleNotChange} /></div>
-        <div>number: <input value={newNumber} onChange={handleNumber} /></div>
-        <div>
-          <button type="submit">add</button>
-        </div>
-      </form>
-      <h2>Numbers</h2>
+      <Filter value={filter} handleChange={handleFilter}/>
+      <h3>Add a new</h3>
+      <Personform onSubmit={addContact} 
+                  name={newName} 
+                  handleNameChange={handleName}
+                  number={newNumber}
+                  handleNumberChange={handleNumber}
+      />
+      <h3>Numbers</h3>
       <ul>
         <List obj={persons} />
       </ul>
       <div>debug: {newName}</div>
-      
-      ...
-      {/* <ul>{namesArr.map(item=><li>{item}</li>)}</ul> */}
     </div>
   )
 }
