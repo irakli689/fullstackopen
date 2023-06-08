@@ -3,6 +3,8 @@ import axios from 'axios'
 import List from './components/list'
 import Filter from './components/filter'
 import Personform from './components/personform'
+import personService from './services/notes'
+
 const App = () => {
   const [persons, setPersons] = useState([])
   useEffect( () => {
@@ -25,7 +27,7 @@ const App = () => {
     const filt=event.target.value
     setFilter(event.target.value)
     console.log("filt", filter)
-    setPersons(persons.filter(person=>person.name.includes(filt)))
+    setPersons(persons.filter(person => person.name.includes(filt)))
   }
   const handleName = (event) => {
       console.log(event.target.value)
@@ -41,7 +43,12 @@ const App = () => {
       name: newName,
       number: newNumber
     }
-    
+    personService
+      .create(newObject)
+      .then(response=>{
+        console.log(response)
+      })
+
     if (namesArr.includes(newName)){
       alert(`${newName} is already added to phonebook`)
     } else{
@@ -52,6 +59,18 @@ const App = () => {
     }
   }
   
+  const handleDelete = (id) => {
+    if (window.confirm("Do you really want to delete this person")) {
+      personService
+        .remove(id)
+        .then(() => {
+          setPersons(persons.filter((person) => person.id !== id))
+        })
+        .catch((err) => alert(err))
+    } else {
+      return
+    }
+  }
   return (
     <div>
       <h2>Phonebook</h2>
@@ -65,7 +84,7 @@ const App = () => {
       />
       <h3>Numbers</h3>
       <ul>
-        <List obj={persons} />
+        <List obj={persons} dltbtn={handleDelete}/>
       </ul>
       <div>debug: {newName}</div>
     </div>
