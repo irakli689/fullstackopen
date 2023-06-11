@@ -8,6 +8,6 @@ const remove = (id) => {
     return req.then((res) => res.data)
   }
 export default {
-    create: create,
-    remove: remove
+    create,
+    remove
 }

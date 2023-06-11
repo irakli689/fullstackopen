@@ -7,7 +7,7 @@ import personService from './services/notes'
 
 const App = () => {
   const [persons, setPersons] = useState([])
-  useEffect( () => {
+  useEffect ( () => {
     console.log('effect')
     axios
       .get('http://localhost:3001/persons')
@@ -20,15 +20,10 @@ const App = () => {
   const [newName, setNewName] = useState('')
   const [namesArr, setNamesArr] = useState([...persons.map(person=>person.name)])
   const [newNumber, setNewNumber] = useState ('')
-  const [filter, setFilter] = useState ('')
+  const [search, setSearch] = useState ('')
 
   
-  const handleFilter = (event) => {
-    const filt=event.target.value
-    setFilter(event.target.value)
-    console.log("filt", filter)
-    setPersons(persons.filter(person => person.name.includes(filt)))
-  }
+  
   const handleName = (event) => {
       console.log(event.target.value)
       setNewName(event.target.value)
@@ -74,7 +69,7 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
-      <Filter value={filter} handleChange={handleFilter}/>
+      <Filter value={search} handleChange={(e) => setSearch(e.target.value)}/>
       <h3>Add a new</h3>
       <Personform onSubmit={addContact} 
                   name={newName} 
@@ -84,7 +79,13 @@ const App = () => {
       />
       <h3>Numbers</h3>
       <ul>
-        <List obj={persons} dltbtn={handleDelete}/>
+        {persons
+          .filter((item) => {
+            return search.toLowerCase() === ''
+              ? item
+              : item.name.toLowerCase().includes(search)
+          })
+          .map(item=> <List item={item} dlt={()=>handleDelete(item.id)}/>)}
       </ul>
       <div>debug: {newName}</div>
     </div>
