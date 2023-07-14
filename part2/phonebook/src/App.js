@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import axios from 'axios'
+//import axios from 'axios'
 import List from './components/list'
 import Filter from './components/filter'
 import Personform from './components/personform'
@@ -7,15 +7,17 @@ import personService from './services/notes'
 
 const App = () => {
   const [persons, setPersons] = useState([])
+
   useEffect ( () => {
     console.log('effect')
-    axios
-      .get('http://localhost:3001/persons')
+    personService
+      .get()
       .then(response=>{
         console.log('promise is fulfilled')
-        setPersons(response.data)
+        setPersons(response)
       })
   },[])
+  
   console.log('render', persons.length, 'notes')
   const [newName, setNewName] = useState('')
   const [namesArr, setNamesArr] = useState([...persons.map(person=>person.name)])
