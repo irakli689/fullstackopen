@@ -1,33 +1,33 @@
-import { useEffect, useState } from 'react'
+import { useState, useEffect } from 'react'
 //import axios from 'axios'
+import './index.css'
 import List from './components/list'
 import Filter from './components/filter'
 import Personform from './components/personform'
-import personService from './services/notes'
+import personService from './services/person'
+import Notification from './components/notification'
 
 const App = () => {
   const [persons, setPersons] = useState([])
+  
+  
 
-  useEffect ( () => {
+  useEffect(()=>{
     console.log('effect')
     personService
-      .get()
-      .then(response=>{
-        console.log('promise is fulfilled')
-        setPersons(response)
+      .getAll()
+      .then(initialPersons=>{
+        setPersons(initialPersons)
       })
   },[])
-  
-  console.log('render', persons.length, 'notes')
-  const [newName, setNewName] = useState('')
-  const [namesArr, setNamesArr] = useState([...persons.map(person=>person.name)])
-  const [newNumber, setNewNumber] = useState ('')
-  const [search, setSearch] = useState ('')
 
-  
-  
+  const [newName, setNewName] = useState('')
+  const [newNumber, setNewNumber] = useState ('')
+  const [filter, setFilter] = useState ('')
+  const [notMessage, setNotMessage] = useState(null)
+  const [className, setClassName] = useState(null)
+
   const handleName = (event) => {
-      console.log(event.target.value)
       setNewName(event.target.value)
   }
   const handleNumber = (event) => {
@@ -36,42 +36,71 @@ const App = () => {
 
   const addContact = (event) => {
     event.preventDefault()
+    
     const newObject = {
       name: newName,
       number: newNumber
     }
-    personService
-      .create(newObject)
-      .then(response=>{
-        console.log(response)
-      })
+    
+    const people = persons.map(person=>person.name);
 
-    if (namesArr.includes(newName)){
-      alert(`${newName} is already added to phonebook`)
+    if (people.includes(newName)){
+      const suspect = persons.find(p => p.name === newName)
+      const num = suspect.id
+      if(window.confirm(`${suspect.name} is already added to phonebook, replace the old number with a new one?`)){
+        personService
+        .update(num, newObject)
+        .then(response => {
+          setPersons(persons.map(p => p.id!==num ? p : response))
+        })
+        .catch(error => {
+          setClassName('err')
+          setNotMessage(`Information of ${suspect.name} has already been removed from server`)
+          setTimeout(() => {setNotMessage(null)}, 5000)
+          //alert(`Information of ${suspect.name} has already been removed from server`)
+          setPersons(persons.filter(p => p.id !== num))
+        })
+      }
+      setClassName('notification')
+      setNotMessage(`Updated ${newName}`)
+      setTimeout(() => {setNotMessage(null)}, 5000)
+      
+    }else if(!newName || !newNumber || isNaN(newNumber)){
+      alert('Enter name and number correctly!')
+
     } else{
-      setPersons(persons.concat(newObject))
-      setNamesArr(namesArr.concat(newName))
-      setNewName('')
-      setNewNumber('')
+      personService
+        .create(newObject)
+        .then(returnedPerson => {
+          setPersons(persons.concat(returnedPerson));
+          setNewName('');
+          setNewNumber('');
+        })
+      setClassName('notification')
+      setNotMessage(`Added ${newName}`)
+      setTimeout(() => {setNotMessage(null)}, 5000)
     }
   }
   
-  const handleDelete = (id) => {
-    if (window.confirm("Do you really want to delete this person")) {
-      personService
-        .remove(id)
-        .then(() => {
-          setPersons(persons.filter((person) => person.id !== id))
+  const handleDelete = (name, id) => {
+      console.log(`delete ${id} item`)
+      //const person = persons.find(n => n.id===id);
+      //const deletedPerson = {...person};
+      if(window.confirm(`Delete ${name}?`)){
+        personService
+        .dlt(id)
+        .then(response => {
+          setPersons(persons.filter (person => person.id !==id))
         })
-        .catch((err) => alert(err))
-    } else {
-      return
-    }
+      }
+      
   }
+
   return (
     <div>
       <h2>Phonebook</h2>
-      <Filter value={search} handleChange={(e) => setSearch(e.target.value)}/>
+      <Notification message={notMessage} className={className}/>
+      <Filter value={filter} handleChange={e=>setFilter(e.target.value)}/>
       <h3>Add a new</h3>
       <Personform onSubmit={addContact} 
                   name={newName} 
@@ -81,13 +110,14 @@ const App = () => {
       />
       <h3>Numbers</h3>
       <ul>
-        {persons
+      {persons
           .filter((item) => {
-            return search.toLowerCase() === ''
+            return filter.toLowerCase() === ''
               ? item
-              : item.name.toLowerCase().includes(search)
+              : item.name.toLowerCase().includes(filter)
           })
-          .map(item=> <List item={item} dlt={()=>handleDelete(item.id)}/>)}
+          .map(item=> <List key={item.name} item={item} onDelete={() => handleDelete(item.name, item.id)}/>)
+        }
       </ul>
       <div>debug: {newName}</div>
     </div>

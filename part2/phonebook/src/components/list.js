@@ -1,9 +1,9 @@
-const List = ({item, dlt}) => {
+const List = ({item, onDelete}) => {
     return (
-        <div>
-            <li key={item.name}>{item.name} {item.number}</li>
-            <button onClick={dlt}>delete</button>
-        </div>
-    ) 
+        <li>
+            {item.name} {item.number}
+            <button onClick={onDelete}>delete</button>
+        </li>
+    )
 }
 export default List
