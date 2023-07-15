@@ -37,9 +37,7 @@ app.get('/api/persons', (request, response) => {
 })
 
 app.get('/info', (request, response) => {
-    let i = 0
     const numberOfPeople = persons.length
-    console.log(i)
     const requestTime = new Date();
     response.send(`<p>Phonebook has info for ${numberOfPeople} people<br />${requestTime}<p/>`)
 })
@@ -89,7 +87,7 @@ app.post('/api/persons', (request, response) => {
         id: generatedId()
     }
 
-    persons.concat(person)
+    persons=persons.concat(person)
 
     response.json(person)
 })
